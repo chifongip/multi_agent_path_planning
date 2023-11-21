@@ -11,6 +11,8 @@ import matplotlib.animation as manimation
 import argparse
 import math
 
+from cbs.GenMap import GenMap
+
 Colors = ['orange', 'blue', 'green']
 
 
@@ -21,7 +23,9 @@ class Animation:
     self.combined_schedule = {}
     self.combined_schedule.update(self.schedule["schedule"])
 
-    aspect = map["map"]["dimensions"][0] / map["map"]["dimensions"][1]
+    dimensions, obstacles = GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
+
+    aspect = dimensions[0] / dimensions[1]
 
     self.fig = plt.figure(frameon=False, figsize=(4 * aspect, 4))
     self.ax = self.fig.add_subplot(111, aspect='equal')
@@ -35,8 +39,8 @@ class Animation:
     # create boundary patch
     xmin = -0.5
     ymin = -0.5
-    xmax = map["map"]["dimensions"][0] - 0.5
-    ymax = map["map"]["dimensions"][1] - 0.5
+    xmax = dimensions[0] - 0.5
+    ymax = dimensions[1] - 0.5
 
     # self.ax.relim()
     plt.xlim(xmin, xmax)
@@ -48,7 +52,10 @@ class Animation:
     # self.ax.axis('off')
 
     self.patches.append(Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, facecolor='none', edgecolor='red'))
-    for o in map["map"]["obstacles"]:
+    
+    # for o in map["map"]["obstacles"]:
+    #   x, y = o[0], o[1]
+    for o in obstacles:
       x, y = o[0], o[1]
       self.patches.append(Rectangle((x - 0.5, y - 0.5), 1, 1, facecolor='red', edgecolor='red'))
 

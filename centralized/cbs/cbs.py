@@ -14,6 +14,7 @@ from itertools import combinations
 from copy import deepcopy
 
 from cbs.a_star import AStar
+from GenMap import GenMap
 
 class Location(object):
     def __init__(self, x=-1, y=-1):
@@ -321,10 +322,12 @@ def main():
         except yaml.YAMLError as exc:
             print(exc)
 
-    dimension = param["map"]["dimensions"]
-    obstacles = param["map"]["obstacles"]
-    agents = param['agents']
+    # dimension = param["map"]["dimensions"]
+    # obstacles = param["map"]["obstacles"]
 
+    dimension, obstacles = GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
+    agents = param['agents']
+    
     env = Environment(dimension, agents, obstacles)
 
     # Searching
