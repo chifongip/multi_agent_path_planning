@@ -14,7 +14,9 @@ from itertools import combinations
 from copy import deepcopy
 
 from cbs.a_star import AStar
-from GenMap import GenMap
+
+import numpy as np
+from GenMap import Generator
 
 class Location(object):
     def __init__(self, x=-1, y=-1):
@@ -325,9 +327,17 @@ def main():
     # dimension = param["map"]["dimensions"]
     # obstacles = param["map"]["obstacles"]
 
-    dimension, obstacles = GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
-    agents = param['agents']
+    Map = Generator()
+    dimension, obstacles = Map.GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
     
+    # grid = np.zeros([3, 10], dtype=int)
+    # grid[1][1:4] = 1
+    # grid[1][6:9] = 1
+    # dimension, obstacles = Map.Grid(grid)
+
+    # agents = param['agents']
+    agents = Map.GenAgent(4)
+
     env = Environment(dimension, agents, obstacles)
 
     # Searching
@@ -337,6 +347,12 @@ def main():
         print(" Solution not found" )
         return
 
+    # Write the start and goal to input.yaml
+    input = dict()
+    input["agents"] = agents
+    with open(args.param, 'w') as input_yaml:
+        yaml.safe_dump(input, input_yaml)
+    
     # Write to output file
     output = dict()
     output["schedule"] = solution

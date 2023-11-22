@@ -11,10 +11,12 @@ import matplotlib.animation as manimation
 import argparse
 import math
 
-from cbs.GenMap import GenMap
+from cbs.GenMap import Generator
+import matplotlib as mpl
 
 Colors = ['orange', 'blue', 'green']
-
+cmap = mpl.cm.get_cmap("jet", 4)
+colors = cmap(np.linspace(0, 1, 4))
 
 class Animation:
   def __init__(self, map, schedule):
@@ -23,7 +25,12 @@ class Animation:
     self.combined_schedule = {}
     self.combined_schedule.update(self.schedule["schedule"])
 
-    dimensions, obstacles = GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
+    Map = Generator()
+    dimensions, obstacles = Map.GenMap("C:/Users/oscarip/Desktop/multi_agent_path_planning/centralized/cbs/grid.jpg")
+    # grid = np.zeros([3, 10], dtype=int)
+    # grid[1][1:4] = 1
+    # grid[1][6:9] = 1
+    # dimensions, obstacles = Map.Grid(grid)
 
     aspect = dimensions[0] / dimensions[1]
 
@@ -62,18 +69,38 @@ class Animation:
     # create agents:
     self.T = 0
     # draw goals first
+    idx = 0
     for d, i in zip(map["agents"], range(0, len(map["agents"]))):
-      self.patches.append(Rectangle((d["goal"][0] - 0.25, d["goal"][1] - 0.25), 0.5, 0.5, facecolor=Colors[0], edgecolor='black', alpha=0.5))
+      self.patches.append(Rectangle((d["goal"][0] - 0.25, d["goal"][1] - 0.25), 0.5, 0.5, facecolor=colors[idx], edgecolor='black', alpha=0.5))
+      self.patches.append(Rectangle((d["start"][0] - 0.25, d["start"][1] - 0.25), 0.5, 0.5, facecolor=colors[idx], edgecolor='black', alpha=0.5))
+      idx += 1
+      
+    idx = 0
     for d, i in zip(map["agents"], range(0, len(map["agents"]))):
       name = d["name"]
       self.agents[name] = Circle((d["start"][0], d["start"][1]), 0.3, facecolor=Colors[0], edgecolor='black')
-      self.agents[name].original_face_color = Colors[0]
+      self.agents[name].original_face_color = colors[idx]
       self.patches.append(self.agents[name])
       self.T = max(self.T, schedule["schedule"][name][-1]["t"])
       self.agent_names[name] = self.ax.text(d["start"][0], d["start"][1], name.replace('agent', ''))
       self.agent_names[name].set_horizontalalignment('center')
       self.agent_names[name].set_verticalalignment('center')
       self.artists.append(self.agent_names[name])
+      idx += 1
+
+    # draw path 
+    path = {}
+    idx = 0
+    for agent_name, agent in self.combined_schedule.items():
+      x_buf = []
+      y_buf = []
+      # for i in range(len(agent)):
+      for i in range(len(agent)):
+        self.patches.append(Circle((agent[i]["x"], agent[i]["y"]), 0.1, facecolor=colors[idx], edgecolor='black'))
+        x_buf.append(agent[i]["x"])
+        y_buf.append(agent[i]["y"])
+      path[agent_name] = [x_buf, y_buf]
+      idx += 1
 
     # self.ax.set_axis_off()
     # self.fig.axes[0].set_visible(False)
